@@ -37,7 +37,7 @@ A full-stack **passwordless authentication web-service** built using the **WebAu
 - ✅ Full WebAuthn **Authentication (Assertion)** ceremony
 - ✅ HTTPS with self-signed certificate for desktop testing
 - ✅ Mobile testing via **Cloudflare Tunnel** (free, no account needed)
-- ✅ Support for **Windows Hello (PIN)**, **Android biometrics**, **Google Password Manager**
+- ✅ Support for **Windows Hello (PIN)**, **Android/iOS biometrics**, **Google Password Manager**
 - ✅ Protected page showing username and full authenticator information
 - ✅ **Signature counter** tracking and cloned-authenticator detection
 - ✅ Server verifies **challenge, origin, RP ID hash, UP/UV flags, signature**
