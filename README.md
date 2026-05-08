@@ -356,9 +356,9 @@ https://abc-def-123-xyz.trycloudflare.com
  
 | Browser | Username | Authenticator | Expected Result |
 |---|---|---|---|
-| Chrome Mobile | `mobile_chrome` | Android PIN / Fingerprint | ✅ Pass |
-| Firefox Mobile | `mobile_firefox` | Android PIN / Fingerprint | ✅ Pass |
-| Edge Mobile | `mobile_edge` | Android PIN / Fingerprint | ✅ Pass |
+| Chrome Mobile | `mobile_chrome` | iOS PIN / Fingerprint | ✅ Pass |
+| Safari Mobile | `mobile_safari` | iOS PIN / Fingerprint | ✅ Pass |
+| Brave Mobile | `mobile_brave` | iOS PIN / Fingerprint | ✅ Pass |
  
 > 💡 The tunnel URL changes every time cloudflared restarts. Always copy the new URL and update RP_ID and ORIGIN.
  
@@ -456,27 +456,27 @@ Browser                         Server (app.py)
  
 | # | What is Verified | Spec Reference |
 |---|---|---|
-| 1 | `clientDataJSON.type` = `webauthn.create` | §7.1 Step 7 |
-| 2 | Challenge matches server-issued challenge | §7.1 Step 11 |
-| 3 | Origin matches expected origin | §7.1 Step 13 |
-| 4 | RP ID hash in authenticatorData | §7.1 Step 14 |
-| 5 | User-Present (UP) flag set | §7.1 Step 15 |
-| 6 | Attestation statement verified | §7.1 Step 19 |
-| 7 | Credential ID not already registered | §7.1 Step 23 |
+| 1 | `clientDataJSON.type` = `webauthn.create` 
+| 2 | Challenge matches server-issued challenge
+| 3 | Origin matches expected origin 
+| 4 | RP ID hash in authenticatorData
+| 5 | User-Present (UP) flag set 
+| 6 | Attestation statement verified 
+| 7 | Credential ID not already registered
  
 ### Authentication Verification (WebAuthn Spec §7.2)
  
 | # | What is Verified | Spec Reference |
 |---|---|---|
-| 1 | `clientDataJSON.type` = `webauthn.get` | §7.2 Step 7 |
-| 2 | Challenge matches server-issued challenge | §7.2 Step 11 |
-| 3 | Origin matches expected origin | §7.2 Step 13 |
-| 4 | RP ID hash in authenticatorData | §7.2 Step 14 |
-| 5 | User-Present (UP) flag set | §7.2 Step 15 |
-| 6 | Credential belongs to claimed user | §7.2 Step 6 |
-| 7 | Signature verified with stored public key | §7.2 Step 20 |
-| 8 | Sign count greater than stored count | §7.2 Step 17 |
-| 9 | Sign count updated after success | §7.2 Step 17 |
+| 1 | `clientDataJSON.type` = `webauthn.get`
+| 2 | Challenge matches server-issued challenge 
+| 3 | Origin matches expected origin 
+| 4 | RP ID hash in authenticatorData 
+| 5 | User-Present (UP) flag set 
+| 6 | Credential belongs to claimed user 
+| 7 | Signature verified with stored public key 
+| 8 | Sign count greater than stored count 
+| 9 | Sign count updated after success 
  
 ---
  
@@ -544,7 +544,7 @@ fetch('/authenticate/begin', {
 Server response (HTTP 403):
 {"error": "Credential does not belong to this user – access denied"}
 ```
- 
+4. If you are familiar with burp suite, you can use burp suite to intercept and modify package data
 ---
  
 ## ⚙️ Environment Variables
