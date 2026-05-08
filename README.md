@@ -325,13 +325,13 @@ Open Chrome on your PC and go to the tunnel URL — the WebAuthn page should loa
  
 ## 📱 Mobile Browser Testing
  
-### Install 3 Browsers on Android Phone
+### Install 3 Browsers on Android/iOS Phone
  
 | Browser | Download |
 |---|---|
-| Chrome | Pre-installed on most Android phones |
-| Firefox | Play Store → search "Firefox" |
-| Microsoft Edge | Play Store → search "Microsoft Edge" |
+| Chrome | App Store → search "Chrome" |
+| Safari| Pre-installed on iOS phones |
+| Brave | App Store → search "Microsoft Edge" |
  
 ### Open Each Browser on Phone
  
@@ -543,8 +543,10 @@ fetch('/authenticate/begin', {
  
 Server response (HTTP 403):
 {"error": "Credential does not belong to this user – access denied"}
-```
+
 4. If you are familiar with burp suite, you can use burp suite to intercept and modify package data
+```
+
 ---
  
 ## ⚙️ Environment Variables
