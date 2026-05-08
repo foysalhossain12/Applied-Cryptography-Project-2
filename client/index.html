@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSE722 – WebAuthn Demo</title>
+  <style>
+    :root{--bg:#0f172a;--card:#1e293b;--accent:#6366f1;--accent2:#22d3ee;--text:#e2e8f0;--muted:#94a3b8;--danger:#f87171;--success:#4ade80;--border:#334155}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+    header{text-align:center;margin-bottom:32px}
+    header h1{font-size:2rem;font-weight:700}
+    header h1 span{color:var(--accent)}
+    header p{color:var(--muted);margin-top:6px;font-size:.9rem}
+    .tabs{display:flex;gap:4px;background:var(--card);border-radius:12px;padding:6px;margin-bottom:24px;border:1px solid var(--border)}
+    .tab{flex:1;padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.95rem;font-weight:600;transition:all .2s;background:transparent;color:var(--muted)}
+    .tab.active{background:var(--accent);color:#fff}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:440px}
+    .panel{display:none}.panel.active{display:block}
+    label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+    input[type=text]{width:100%;padding:12px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:1rem;outline:none;transition:border-color .2s}
+    input[type=text]:focus{border-color:var(--accent)}
+    .btn{width:100%;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:18px;transition:all .2s}
+    .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#4f46e5}
+    .btn-secondary{background:#334155;color:var(--text)}.btn-secondary:hover{background:#475569}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .status{margin-top:18px;padding:12px 16px;border-radius:10px;font-size:.9rem;display:none}
+    .status.success{background:#052e16;border:1px solid var(--success);color:var(--success);display:block}
+    .status.error{background:#2d0a0a;border:1px solid var(--danger);color:var(--danger);display:block}
+    .status.info{background:#0c1a2e;border:1px solid var(--accent2);color:var(--accent2);display:block}
+    #protected-page{display:none;width:100%;max-width:540px}
+    .welcome-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px}
+    .welcome-card h2{font-size:1.4rem;margin-bottom:4px}
+    .welcome-card .user{color:var(--accent2);font-weight:700}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+    .info-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px}
+    .info-item .key{font-size:.75rem;color:var(--muted);margin-bottom:4px}
+    .info-item .val{font-size:.85rem;font-weight:600;word-break:break-all}
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:600;background:#1a2e1a;color:var(--success);border:1px solid var(--success)}
+    .fingerprint-icon{font-size:3.5rem;text-align:center;margin-bottom:8px}
+    .spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
 
+<div id="auth-section">
+  <header>
+    <div class="fingerprint-icon">🔑</div>
+    <h1>CSE722 <span>WebAuthn</span></h1>
+    <p>Passwordless Authentication Demo</p>
+  </header>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('register')">Register</button>
+    <button class="tab" onclick="switchTab('login')">Sign In</button>
+  </div>
+  <div class="card">
+    <div id="panel-register" class="panel active">
+      <label for="reg-user">Username</label>
+      <input type="text" id="reg-user" placeholder="e.g. alice" autocomplete="username webauthn"/>
+      <button class="btn btn-primary" id="btn-register" onclick="startRegister()">Register Passkey</button>
+      <div id="reg-status" class="status"></div>
+    </div>
+    <div id="panel-login" class="panel">
+      <label for="auth-user">Username</label>
+      <input type="text" id="auth-user" placeholder="e.g. alice" autocomplete="username webauthn"/>
+      <button class="btn btn-primary" id="btn-login" onclick="startAuth()">Sign In with Passkey</button>
+      <div id="auth-status" class="status"></div>
+    </div>
+  </div>
+</div>
+
+<div id="protected-page">
+  <header style="margin-bottom:24px">
+    <div style="font-size:2.5rem;text-align:center">✅</div>
+    <h1 style="text-align:center">Authentication <span style="color:var(--success)">Successful</span></h1>
+  </header>
+  <div class="welcome-card">
+    <h2>Welcome, <span class="user" id="display-username"></span>!</h2>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:4px">You are authenticated via WebAuthn (passwordless).</p>
+    <div class="info-grid" id="auth-info-grid"></div>
+    <button class="btn btn-secondary" style="margin-top:20px" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+
+<script>
+function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function b64decode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer}
+function setStatus(id,type,msg){const el=document.getElementById(id);el.className='status '+type;el.innerHTML=msg}
+function setLoading(btnId,loading,label){const btn=document.getElementById(btnId);btn.disabled=loading;btn.innerHTML=loading?`<span class="spinner"></span>${label}`:label}
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='register')||(i===1&&tab==='login')));
+  document.getElementById('panel-register').classList.toggle('active',tab==='register');
+  document.getElementById('panel-login').classList.toggle('active',tab==='login');
+}
+
+async function startRegister(){
+  const username=document.getElementById('reg-user').value.trim();
+  if(!username)return setStatus('reg-status','error','Please enter a username.');
+  setLoading('btn-register',true,'Preparing…');setStatus('reg-status','info','Contacting server…');
+  try{
+    const optRes=await fetch('/register/begin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
+    const options=await optRes.json();if(options.error)throw new Error(options.error);
+    options.challenge=b64decode(options.challenge);
+    options.user.id=b64decode(options.user.id);
+    if(options.excludeCredentials)options.excludeCredentials=options.excludeCredentials.map(c=>({...c,id:b64decode(c.id)}));
+    setStatus('reg-status','info','Waiting for your authenticator…');
+    const cred=await navigator.credentials.create({publicKey:options});
+    const payload={id:cred.id,rawId:b64url(cred.rawId),type:cred.type,
+      response:{attestationObject:b64url(cred.response.attestationObject),clientDataJSON:b64url(cred.response.clientDataJSON),
+        transports:cred.response.getTransports?cred.response.getTransports():[]}};
+    const verRes=await fetch('/register/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await verRes.json();if(result.error)throw new Error(result.error);
+    setStatus('reg-status','success',`✅ Passkey registered!<br><small>AAGUID: ${result.aaguid||'n/a'} | Type: ${result.attestationType}</small>`);
+  }catch(e){setStatus('reg-status','error','❌ '+e.message);}
+  finally{setLoading('btn-register',false,'Register Passkey');}
+}
+
+async function startAuth(){
+  const username=document.getElementById('auth-user').value.trim();
+  if(!username)return setStatus('auth-status','error','Please enter a username.');
+  setLoading('btn-login',true,'Preparing…');setStatus('auth-status','info','Contacting server…');
+  try{
+    const optRes=await fetch('/authenticate/begin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
+    const options=await optRes.json();if(options.error)throw new Error(options.error);
+    options.challenge=b64decode(options.challenge);
+    if(options.allowCredentials)options.allowCredentials=options.allowCredentials.map(c=>({...c,id:b64decode(c.id)}));
+    setStatus('auth-status','info','Waiting for your authenticator…');
+    const assertion=await navigator.credentials.get({publicKey:options});
+    const payload={id:assertion.id,rawId:b64url(assertion.rawId),type:assertion.type,
+      response:{clientDataJSON:b64url(assertion.response.clientDataJSON),authenticatorData:b64url(assertion.response.authenticatorData),
+        signature:b64url(assertion.response.signature),userHandle:assertion.response.userHandle?b64url(assertion.response.userHandle):null}};
+    const verRes=await fetch('/authenticate/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await verRes.json();if(result.error)throw new Error(result.error);
+    showProtectedPage(result.username,result.authenticator);
+  }catch(e){setStatus('auth-status','error','❌ '+e.message);}
+  finally{setLoading('btn-login',false,'Sign In with Passkey');}
+}
+
+function showProtectedPage(username,auth){
+  document.getElementById('auth-section').style.display='none';
+  document.getElementById('protected-page').style.display='block';
+  document.getElementById('display-username').textContent=username;
+  const grid=document.getElementById('auth-info-grid');
+  const items=[['Status','<span class="badge">✓ Authenticated</span>'],['AAGUID',auth.aaguid||'n/a'],
+    ['Attestation',auth.attestationType||'n/a'],['Transports',(auth.transports||[]).join(', ')||'n/a'],
+    ['Sign Count',auth.signCount??'n/a'],['Last Used',auth.lastUsed?(auth.lastUsed.replace('T',' ').slice(0,19)+' UTC'):'now']];
+  grid.innerHTML=items.map(([k,v])=>`<div class="info-item"><div class="key">${k}</div><div class="val">${v}</div></div>`).join('');
+}
+async function doLogout(){await fetch('/logout',{method:'POST'});document.getElementById('protected-page').style.display='none';document.getElementById('auth-section').style.display='block';}
+</script>
+</body>
+</html>
