@@ -636,8 +636,8 @@ Open on phone: `https://YOUR_TUNNEL.trycloudflare.com`
 | Name | Student ID |
 |---|---|
 | Md Foysal Hossain | 1000060115 |
-| Tanvir Ahmed Khan | 100006045 |
+| Tanvir Ahmed Khan | 1000060043 |
  
-**Course:** CSE722 — Aplied Cryptography  
+**Course:** CSE722 — Applied Cryptography  
 **Institution:** BRAC University  
 **Submission Date:** May 8, 2026
